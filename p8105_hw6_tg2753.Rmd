@@ -1,0 +1,25 @@
+---
+title: "Homework6"
+output: github_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1
+
+
+
+```{r}
+
+```
+
+## Problem 2
+
+```{r}
+
+```
+
+
