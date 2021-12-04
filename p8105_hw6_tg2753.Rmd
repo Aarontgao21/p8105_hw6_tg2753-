@@ -72,7 +72,67 @@ cv_df =
 ## Problem 2
 
 ```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+```
 
+5000 bootstrap samples and, for each bootstrap sample, produce estimates of these two quantities
+Plot the distribution of your estimates, and describe these in words.
+```{r}
+bootstrap_df = 
+  weather_df %>% 
+  bootstrap(n = 5000) %>%
+  mutate(model = map(strap, ~lm(tmax ~ tmin, data = .x)),
+         r_square = map(model, broom::glance),
+         results = map(model, broom::tidy))%>%
+  unnest(r_square) %>% 
+  select(.id, r.squared, results) %>% 
+  unnest(results) %>% 
+  select(1:4)
+r_square_df = bootstrap_df %>%
+  select(.id, r.squared) %>%
+  distinct()
+r_square_df %>%
+  ggplot(aes(x = r.squared)) +
+  geom_density()+
+  labs(title = "distribution of r^2",
+       x = "r^2",
+       y = "density")
+
+log_df =  bootstrap_df %>%
+  select(.id, term, estimate) %>%
+  mutate(term = recode(term, `(Intercept)` = "beta0_estimate", `tmin`="beta1_estimate"))%>%
+  pivot_wider(names_from = "term",values_from = "estimate") %>%
+  mutate(log_beta =log(beta0_estimate * beta1_estimate))
+log_df %>%
+  ggplot(aes(x = log_beta)) +
+  geom_density()+
+  labs(title = "distribution of log(beta0*beta1)",
+       x = "log(beta0*beta1)",
+       y = "density")
+```
+
+Description: According to the above plots, the estimates of $\hat{r}^2$ is about 0.91 and of $log(\hat{\beta}_0 \ast \hat{\beta}_1)$ is close to 0.875
+
+  
+   
+Using the 5000 bootstrap estimates, identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval 
+```{r}
+r_square_df %>%
+  summarize(ci_lower = quantile(r.squared, 0.025), 
+            ci_upper = quantile(r.squared, 0.975))
+log_df %>%
+  summarize(ci_lower = quantile(log_beta, 0.025), 
+            ci_upper = quantile(log_beta, 0.975))
 ```
 
 
