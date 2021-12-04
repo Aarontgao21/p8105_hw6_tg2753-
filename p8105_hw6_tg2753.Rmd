@@ -121,7 +121,7 @@ log_df %>%
        y = "density")
 ```
 
-Description: According to the above plots, the estimates of $\hat{r}^2$ is about 0.91 and of $log(\hat{\beta}_0 \ast \hat{\beta}_1)$ is close to 0.875
+Description: According to the above plots, the estimates of $\hat{r}^2$ is about 0.91 and of $log(\hat{\beta}_0 \ast \hat{\beta}_1)$ is close to 2.02
 
   
    
